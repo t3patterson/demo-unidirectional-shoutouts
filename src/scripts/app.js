@@ -152,10 +152,12 @@ const NavView = React.createClass({
    render: function(){
       return (
          <div>
+            <hr/>
             <button className="btn-primary btn btn-lg" onClick={this._handleNavClick} data-rated="ALL">All</button>
             <button className="btn-default btn btn-lg" onClick={this._handleNavClick} data-rated="G">Family Friendly (Rated G)</button>
             <button className="btn-default btn btn-lg" onClick={this._handleNavClick} data-rated="PG">Parental Guidance (Rated PG)</button>
             <button className="btn-default btn btn-lg" onClick={this._handleNavClick} data-rated="R">Mature Audiences (Rated R)</button>
+            <hr/>
          </div>
       )
    }
