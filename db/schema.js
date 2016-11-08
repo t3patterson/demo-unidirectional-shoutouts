@@ -1,15 +1,16 @@
-const mongoose = require('mongoose');
+   const mongoose = require('mongoose');
 const createModel = mongoose.model.bind(mongoose);
 const Schema = mongoose.Schema;
 
 // ----------------------
 // DATA TABLE
 // ----------------------
-const resourceSchema = new Schema({
+const shoutOutSchema = new Schema({
   // example of optional fields
-  title:        { type: String, required: true },
-  description:  { type: String },
-  upVotes:      { type: Number, default: 0 },
+  msg:         { type: String, required: true },
+  imgLink:     { type: String, required: true },
+  from :       { type: String  },
+  rating:      { type: String, required: true  },
   createdAt:    { type: Date, default: Date.now }
 
 })
@@ -20,5 +21,5 @@ module.exports = {
    /*
     * NOTE: you would ideally change the export-value and the model-name
     */
-  Resource: createModel('Resource', resourceSchema)
+  ShoutOut: createModel('ShoutOut', shoutOutSchema)
 }

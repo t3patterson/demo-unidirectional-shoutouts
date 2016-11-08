@@ -2,7 +2,6 @@ const ReactDOM = require('react-dom');
 const React = require('react');
 const Backbone = require('backbone');
 
-// http://www.outsidethebeltway.com/wp-content/uploads/2012/08/argument-cartoon-yelling.jpg
 const {ShoutOutModel, ShoutOutCollection} = require('./model.js')
 
 const HomeView = React.createClass({
@@ -175,8 +174,13 @@ const NavView = React.createClass({
       Backbone.Events.trigger("change-rating", updatedRating )
    },
 
+
+
    _getBtnClassName: function(viewType, currentView){
-      if(viewType === currentView){
+      //here  we determine what string to return...
+      //  if the view type for a given button element is equal to the currently selected view
+      //     then we return `...btn-primary...`
+      if(viewType === currentView)
          return 'btn btn-primary btn-lg'
       } else {
          return 'btn btn-default btn-lg'
@@ -187,10 +191,10 @@ const NavView = React.createClass({
    render: function(){
       let currentSelectedView = this.props.selectedView
 
-      // currently selected have button class with btn-primary btn btn-lg
       return (
          <div>
             <hr/>
+            {/* using a function to determine what className will render for an element */}
             <button className={ this._getBtnClassName('ALL', currentSelectedView) } onClick={this._handleNavClick} data-rated="ALL"  >All</button>
             <button className={ this._getBtnClassName('G', currentSelectedView) } onClick={this._handleNavClick} data-rated="G"  >Family Friendly (Rated G)</button>
             <button className={ this._getBtnClassName('PG', currentSelectedView) } onClick={this._handleNavClick} data-rated="PG"  >Parental Guidance (Rated PG)</button>

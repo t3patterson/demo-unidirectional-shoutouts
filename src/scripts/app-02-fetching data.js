@@ -2,7 +2,7 @@ const ReactDOM = require('react-dom');
 const React = require('react');
 const Backbone = require('backbone');
 
-// http://www.outsidethebeltway.com/wp-content/uploads/2012/08/argument-cartoon-yelling.jpg
+//(PART 1) - Checkout model.js
 const {ShoutOutModel, ShoutOutCollection} = require('./model.js')
 
 const HomeView = React.createClass({
@@ -12,6 +12,8 @@ const HomeView = React.createClass({
       let startingStateObj = {
          currentViewSetting : 'ALL',
          previewImgUrl: 'http://www.allensguide.com/img/no_image_selected.gif',
+         {/*(PART 3) Put props on state and send down to components*/}
+         {/* (a)*/ }
          shoutOutData : this.props.shoutOutDataColl
       }
 
@@ -21,12 +23,6 @@ const HomeView = React.createClass({
    componentWillMount: function(){
       let outerMsg = 'woahhhhhh'
       let self = this;
-      Backbone.Events.on('new-record', function(){
-         let newColl = new ShoutOutCollection()
-         newColl.fetch().then(function(){
-            self.setState({shoutOutData: newColl})
-         })
-      })
 
       Backbone.Events.on("change-rating", function(newRating){
          console.log( outerMsg, newRating)
@@ -71,17 +67,6 @@ const HomeView = React.createClass({
       let newMod = new ShoutOutModel()
       newMod.set(modAttributes)
 
-      newMod.save().then(function(serverRes){
-         console.log('new-model-in-db: ', newMod)
-         Backbone.Events.trigger('new-record')
-      })
-
-
-      // let copyOfShoutList = this.state.shoutOutData.map(function(m){return m })
-      // copyOfShoutList.push(newMod)
-      //
-      // let newStateObj = {shoutOutData: copyOfShoutList}
-      // this.setState(newStateObj)
    },
 
    render: function(evt){
@@ -124,6 +109,7 @@ const HomeView = React.createClass({
                </div>
 
                <ShoutOutList
+                  {/* (b) Note, that i am passing down the collection's .models array as shoutData-props */ }
                   shoutData={ this.state.shoutOutData.models }
                   currentViewFilter={this.state.currentViewSetting}
                />
@@ -140,6 +126,8 @@ const ShoutOutList = React.createClass({
    //
    render: function(){
       let self = this
+      { /* (c)Pick up the shoutData array on props then, as before:
+          filter, and map for the view*/  }
       let filteredModelsList = this.props.shoutData.filter(function(modl){
          if(self.props.currentViewFilter.toUpperCase() === 'ALL'){
             return true
@@ -224,8 +212,15 @@ if (typeof dataModels === 'undefined' ){
    dataModels = []
 }
 
+//(PART 2) - Create a new collection instance + fetch,
+//           then pass data as props to top-level component
+
+//(a) new instance
 let shoutOutCollInstance = new ShoutOutCollection()
+//(b) new instance
+
 shoutOutCollInstance.fetch().then( function(){
       console.log(shoutOutCollInstance)
+      //(b)pass collection instance as props to <HomeView/>
       ReactDOM.render(<HomeView shoutOutDataColl={shoutOutCollInstance}/>, document.querySelector('#app-container'))
 })
