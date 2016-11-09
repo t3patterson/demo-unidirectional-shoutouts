@@ -2,38 +2,41 @@ const ReactDOM = require('react-dom');
 const React = require('react');
 const Backbone = require('backbone');
 
-// http://www.outsidethebeltway.com/wp-content/uploads/2012/08/argument-cartoon-yelling.jpg
+// (PART 0-A - Setup the STORE  )
+const STORE = require('./store.js');
+
+// (PART 0-B - Setup the ACTIONS  )
+const ACTIONS = require('./actions.js');
+
 const {ShoutOutModel, ShoutOutCollection} = require('./model.js')
 
 const HomeView = React.createClass({
 
    getInitialState: function(){
+      //(1a) Set default values on the store
+      STORE.setStore('currentViewSetting', 'ALL')
+      STORE.setStore('previewImgUrl','http://www.allensguide.com/img/no_image_selected.gif')
+      STORE.setStore('shoutOutData', new ShoutOutCollection() )
 
-      let startingStateObj = {
-         currentViewSetting : 'ALL',
-         previewImgUrl: 'http://www.allensguide.com/img/no_image_selected.gif',
-         shoutOutData : this.props.shoutOutDataColl
-      }
-
-      return startingStateObj
+      //(1b) Set initial application state with store-getter
+      let initialAppState = STORE.getStoreData()
+      return initialAppState
    },
 
    componentWillMount: function(){
-      let outerMsg = 'woahhhhhh'
-      let self = this;
-      Backbone.Events.on('new-record', function(){
-         let newColl = new ShoutOutCollection()
-         newColl.fetch().then(function(){
-            self.setState({shoutOutData: newColl})
-         })
+      let self = this
+
+
+      //(2a) Listen for changes on the store and run this callback
+      STORE.onChange(function(){
+         console.log("????????")
+         //(2b) Set the state every time an action changes the store changes
+         self.setState(STORE.getStoreData())
       })
 
-      Backbone.Events.on("change-rating", function(newRating){
-         console.log( outerMsg, newRating)
-         this.setState({
-            currentViewSetting: newRating
-         })
-      }.bind(this))
+      //(3a) Fetch Action (@ initialization)
+      ACTIONS.fetchShoutData()
+
    },
 
    _handleImgPreviewClick: function(){
@@ -50,7 +53,6 @@ const HomeView = React.createClass({
       this.setState(newStateObj)
    },
 
-   //
    _addSubmission: function(evt){
 
       let theMsg = this.refs.theMsgEl.value
@@ -58,30 +60,16 @@ const HomeView = React.createClass({
       let theImg = this.refs.imgInputEl.value
       let ratingVal = this.refs.ratingOptionsEl.value
 
-
-      let modAttributes = {
+      let shoutOutDataObj = {
          msg: theMsg,
          imgLink: theImg,
          from: msgFrom,
          rating:ratingVal
       }
 
-      console.log(modAttributes)
+      //(3c) .createNewShoutOut Action (fires on add-button click)
+      ACTIONS.createNewShoutOut(shoutOutDataObj)
 
-      let newMod = new ShoutOutModel()
-      newMod.set(modAttributes)
-
-      newMod.save().then(function(serverRes){
-         console.log('new-model-in-db: ', newMod)
-         Backbone.Events.trigger('new-record')
-      })
-
-
-      // let copyOfShoutList = this.state.shoutOutData.map(function(m){return m })
-      // copyOfShoutList.push(newMod)
-      //
-      // let newStateObj = {shoutOutData: copyOfShoutList}
-      // this.setState(newStateObj)
    },
 
    render: function(evt){
@@ -152,7 +140,7 @@ const ShoutOutList = React.createClass({
          return (
             <ShoutItem shoutModl={smod} key={smod.cid}/>
          )
-      })
+      }).reverse()
 
       return (
          <div className="col-sm-8">
@@ -172,7 +160,9 @@ const ShoutOutList = React.createClass({
 const NavView = React.createClass({
    _handleNavClick: function(evt){
       let updatedRating = evt.target.dataset.rated
-      Backbone.Events.trigger("change-rating", updatedRating )
+      //(3b) .changeViewSetting Action (fires on Nav-Button click)
+      ACTIONS.changeViewSetting(updatedRating)
+
    },
 
    _getBtnClassName: function(viewType, currentView){
@@ -187,7 +177,6 @@ const NavView = React.createClass({
    render: function(){
       let currentSelectedView = this.props.selectedView
 
-      // currently selected have button class with btn-primary btn btn-lg
       return (
          <div>
             <hr/>
@@ -225,7 +214,5 @@ if (typeof dataModels === 'undefined' ){
 }
 
 let shoutOutCollInstance = new ShoutOutCollection()
-shoutOutCollInstance.fetch().then( function(){
-      console.log(shoutOutCollInstance)
-      ReactDOM.render(<HomeView shoutOutDataColl={shoutOutCollInstance}/>, document.querySelector('#app-container'))
-})
+
+ReactDOM.render(<HomeView shoutOutDataColl={shoutOutCollInstance}/>, document.querySelector('#app-container'))
