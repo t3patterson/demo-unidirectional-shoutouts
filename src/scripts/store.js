@@ -1,4 +1,3 @@
-const Backbone = require('backbone')
 const { ShoutOutModel, ShoutOutCollection } = require('./model.js')
 
 const STORE = {
@@ -10,7 +9,6 @@ const STORE = {
     },
 
    setStore: function(storeProp, payload){
-      console.log("????")
       if(typeof storeProp !== 'string'){
          console.error('hey use a string for 1st property')
          return
@@ -22,7 +20,7 @@ const STORE = {
       }
 
       this._data[storeProp] = payload
-      Backbone.Events.trigger('storeChange')
+      this.onChangeCb(this._data)
    },
 
    getStoreData: function(){
@@ -30,7 +28,7 @@ const STORE = {
    },
 
    onChange: function(someFunc){
-      Backbone.Events.on('storeChange', someFunc)
+      this.onChangeCb = someFunc
    }
 
 }
